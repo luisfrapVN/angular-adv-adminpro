@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
@@ -8,7 +8,7 @@ import { filter, map } from 'rxjs/operators';
   templateUrl: './breadcrumbs.component.html',
   styles: [],
 })
-export class BreadcrumbsComponent implements OnInit {
+export class BreadcrumbsComponent implements OnDestroy {
   public titulo: string = '';
   public tituloSubs$: Subscription;
 
@@ -17,6 +17,9 @@ export class BreadcrumbsComponent implements OnInit {
       this.titulo = titulo;
       document.title = `AdminPro - ${titulo}`;
     });
+  }
+  ngOnDestroy(): void {
+    this.tituloSubs$.unsubscribe();
   }
 
   getArgumentosRuta() {
@@ -27,5 +30,5 @@ export class BreadcrumbsComponent implements OnInit {
     ); //Conseguimos sacar los valores de ActivationEnd, nul, ... poniendo un console log del evento y filtrando el que nos interesa
   }
 
-  ngOnInit(): void {}
+
 }
