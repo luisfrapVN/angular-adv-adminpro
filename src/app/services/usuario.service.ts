@@ -2,10 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, NgZone } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { RegisterForm } from '../interfaces/register-form.interface';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, tap, delay } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { Usuario } from '../models/usuario.model';
+import { CargarUsuarios } from '../interfaces/cargar-usuarios.interface';
+import Swal from 'sweetalert2';
 
 const base_url = environment.base_url;
 declare const gapi: any;
@@ -32,6 +34,14 @@ export class UsuarioService {
 
   get uid(): string {
     return this.usuario.uid || '';
+  }
+
+  get headers() {
+    return {
+      headers: {
+        'x-token': this.token,
+      },
+    };
   }
 
   googleInit() {
@@ -97,11 +107,11 @@ export class UsuarioService {
     //   ...data,
     //   rol: this.usuario.rol!,
     // };
-    const put = this.http.put(`${base_url}/usuarios/${this.uid}`, data, {
-      headers: {
-        'x-token': this.token,
-      },
-    });
+    const put = this.http.put(
+      `${base_url}/usuarios/${this.uid}`,
+      data,
+      this.headers
+    );
     return put;
   }
 
@@ -118,5 +128,43 @@ export class UsuarioService {
         localStorage.setItem('token', resp.token);
       })
     );
+  }
+
+  cargarUsuarios(desde: number = 0) {
+    const url = `${base_url}/usuarios?desde=${desde}`;
+    return this.http.get<CargarUsuarios>(url, this.headers).pipe(
+      map((resp) => {
+        const usuarios = resp.usuarios.map(
+          (user) =>
+            new Usuario(
+              user.nombre,
+              user.email,
+              '',
+              user.img,
+              user.google,
+              user.rol,
+              user.uid
+            )
+        );
+        return {
+          total: resp.total,
+          usuarios,
+        };
+      })
+    );
+  }
+
+  eliminarUsuario(usuario: Usuario) {
+    const url = `${base_url}/usuarios/${usuario.uid}`;
+    return this.http.delete(url, this.headers);
+  }
+
+  guardarUsuario(usuario: Usuario) {
+    const put = this.http.put(
+      `${base_url}/usuarios/${usuario.uid}`,
+      usuario,
+      this.headers
+    );
+    return put;
   }
 }
