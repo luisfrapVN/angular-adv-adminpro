@@ -10,15 +10,16 @@ import { UsuarioService } from 'src/app/services/usuario.service';
   ]
 })
 export class SidebarComponent implements OnInit {
-  public imgURL: string = '';
+  // public imgURL: string = '';
   public usuario: Usuario;
 
 
-  menuItems: any[];
-  constructor(private sidebarService: SidebarService, private usuarioService:UsuarioService) {
+  // menu: any[];
+  constructor(public sidebarService: SidebarService, private usuarioService:UsuarioService) {
     // this.imgURL = usuarioService.usuario?.imagenURL;
-    this.menuItems = sidebarService.menu;
+    // this.menu = sidebarService.menu;
     this.usuario = usuarioService.usuario;
+
   }
 
   ngOnInit(): void {
